@@ -1,0 +1,275 @@
+definitions:
+  models.Appointment:
+    properties:
+      date:
+        type: string
+      doctor:
+        $ref: '#/definitions/models.Doctor'
+      doctor_id:
+        type: integer
+      id:
+        type: integer
+      user:
+        allOf:
+        - $ref: '#/definitions/models.User'
+        description: "\U0001F517 Relations"
+      user_id:
+        type: integer
+    required:
+    - date
+    - doctor_id
+    - user_id
+    type: object
+  models.Doctor:
+    properties:
+      appointments:
+        description: "\U0001F517 Relations"
+        items:
+          $ref: '#/definitions/models.Appointment'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+      specialty:
+        type: string
+    required:
+    - name
+    - specialty
+    type: object
+  models.User:
+    properties:
+      appointments:
+        description: "\U0001F517 Relations"
+        items:
+          $ref: '#/definitions/models.Appointment'
+        type: array
+      createdAt:
+        format: int64
+        type: integer
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        description: ❗ response-та шықпайды
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+info:
+  contact: {}
+paths:
+  /appointments:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Appointment'
+            type: array
+      summary: Get all appointments
+      tags:
+      - appointments
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Appointment
+        in: body
+        name: appointment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Appointment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Appointment'
+      summary: Create appointment
+      tags:
+      - appointments
+  /appointments/{id}:
+    delete:
+      parameters:
+      - description: Appointment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete appointment
+      tags:
+      - appointments
+    get:
+      parameters:
+      - description: Appointment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Appointment'
+      summary: Get appointment by ID
+      tags:
+      - appointments
+  /doctors:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Doctor'
+            type: array
+      summary: Get all doctors
+      tags:
+      - doctors
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Doctor
+        in: body
+        name: doctor
+        required: true
+        schema:
+          $ref: '#/definitions/models.Doctor'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Doctor'
+      summary: Create doctor
+      tags:
+      - doctors
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register new user
+      tags:
+      - auth
+  /users:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+      summary: Get all users
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete user
+      tags:
+      - users
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get user by ID
+      tags:
+      - users
+swagger: "2.0"
