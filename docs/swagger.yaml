@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   models.Appointment:
     properties:
@@ -18,7 +19,6 @@ definitions:
     required:
     - date
     - doctor_id
-    - user_id
     type: object
   models.Doctor:
     properties:
@@ -61,8 +61,12 @@ definitions:
     - name
     - password
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: API
+  title: Private Medical Clinic API
+  version: "1.0"
 paths:
   /appointments:
     get:
@@ -75,6 +79,8 @@ paths:
             items:
               $ref: '#/definitions/models.Appointment'
             type: array
+      security:
+      - BearerAuth: []
       summary: Get all appointments
       tags:
       - appointments
@@ -95,6 +101,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.Appointment'
+      security:
+      - BearerAuth: []
       summary: Create appointment
       tags:
       - appointments
@@ -226,6 +234,8 @@ paths:
             items:
               $ref: '#/definitions/models.User'
             type: array
+      security:
+      - BearerAuth: []
       summary: Get all users
       tags:
       - users
@@ -246,6 +256,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete user
       tags:
       - users
@@ -269,7 +281,14 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get user by ID
       tags:
       - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -15,13 +15,17 @@ import (
 // GetUsers godoc
 // @Summary Get all users
 // @Tags users
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {array} models.User
 // @Router /users [get]
 func GetUsers(c *gin.Context) {
 	var users []models.User
 
-	if err := config.DB.Preload("Appointments").Find(&users).Error; err != nil {
+	if err := config.DB.
+		Preload("Appointments").
+		Preload("Appointments.Doctor"). // 🔥 ҚОС
+		Find(&users).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to fetch users",
 		})
@@ -37,6 +41,7 @@ func GetUsers(c *gin.Context) {
 // GetUserByID godoc
 // @Summary Get user by ID
 // @Tags users
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "User ID"
 // @Success 200 {object} models.User
@@ -48,6 +53,7 @@ func GetUserByID(c *gin.Context) {
 
 	if err := config.DB.
 		Preload("Appointments").
+		Preload("Appointments.Doctor"). // 🔥 ҚОС
 		First(&user, id).Error; err != nil {
 
 		c.JSON(http.StatusNotFound, gin.H{
@@ -65,6 +71,7 @@ func GetUserByID(c *gin.Context) {
 // DeleteUser godoc
 // @Summary Delete user
 // @Tags users
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "User ID"
 // @Success 200 {object} map[string]string

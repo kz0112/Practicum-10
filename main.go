@@ -1,5 +1,14 @@
 package main
 
+// @title Private Medical Clinic API
+// @version 1.0
+// @description API
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 import (
 	"log"
 

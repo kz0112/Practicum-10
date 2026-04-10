@@ -1,5 +1,12 @@
 package handlers
 
+// GetAppointments godoc
+// @Summary Get all appointments
+// @Tags appointments
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} models.Appointment
+// @Router /appointments [get]
 import (
 	"net/http"
 
@@ -15,6 +22,7 @@ import (
 // GetAppointments godoc
 // @Summary Get all appointments
 // @Tags appointments
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {array} models.Appointment
 // @Router /appointments [get]
@@ -41,6 +49,7 @@ func GetAppointments(c *gin.Context) {
 // CreateAppointment godoc
 // @Summary Create appointment
 // @Tags appointments
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param appointment body models.Appointment true "Appointment"
@@ -49,29 +58,43 @@ func GetAppointments(c *gin.Context) {
 func CreateAppointment(c *gin.Context) {
 	var appointment models.Appointment
 
+	// 1️⃣ JSON оқу
 	if err := c.ShouldBindJSON(&appointment); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	if appointment.UserID == 0 || appointment.DoctorID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "UserID and DoctorID are required",
-		})
+	// 🔥 2️⃣ ОСЫ ЖЕРГЕ ҚОСАСЫҢ
+	userIDValue, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"error": "Unauthorized"})
 		return
 	}
 
+	userIDFloat, ok := userIDValue.(float64)
+	if !ok {
+		c.JSON(500, gin.H{"error": "Invalid user_id"})
+		return
+	}
+
+	appointment.UserID = uint(userIDFloat)
+
+	// 3️⃣ OPTIONAL VALIDATION
+	if appointment.DoctorID == 0 {
+		c.JSON(400, gin.H{"error": "DoctorID is required"})
+		return
+	}
+
+	// 4️⃣ DB SAVE
 	if err := config.DB.Create(&appointment).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to create appointment",
-		})
+		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
-	// 🔥 preload response
-	config.DB.Preload("User").Preload("Doctor").First(&appointment, appointment.ID)
+	// 5️⃣ PRELOAD
+	config.DB.Preload("Doctor").First(&appointment, appointment.ID)
 
-	c.JSON(http.StatusCreated, appointment)
+	c.JSON(201, appointment)
 }
 
 // =========================

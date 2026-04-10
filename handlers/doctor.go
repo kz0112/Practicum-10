@@ -21,9 +21,18 @@ import (
 func GetDoctors(c *gin.Context) {
 	var doctors []models.Doctor
 
-	config.DB.Find(&doctors)
+	if err := config.DB.
+		Preload("Appointments").
+		Preload("Appointments.User").
+		Find(&doctors).Error; err != nil {
 
-	c.JSON(http.StatusOK, doctors)
+		c.JSON(500, gin.H{
+			"error": "Failed to fetch doctors",
+		})
+		return
+	}
+
+	c.JSON(200, doctors)
 }
 
 // =========================
